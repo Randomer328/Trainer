@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SF6 Input Trainer</title>
+<style>
+:root{--bg:#eceaf5;--panel:#fff;--ink:#17142e;--mute:#6a6685;--line:#d4d0e6;--dir:#e0176f;--btn:#e8a800;--res:#0a8fa3;--ok:#14935a;--cell:#e4e1f1;
+color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13112a;--panel:#1d1a3b;--ink:#f1eefc;--mute:#9b97bd;--line:#332f5e;--dir:#ff3d8d;--btn:#ffc928;--res:#27d3ea;--ok:#3fe08c;--cell:#2a2650;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#13112a;--panel:#1d1a3b;--ink:#f1eefc;--mute:#9b97bd;--line:#332f5e;--dir:#ff3d8d;--btn:#ffc928;--res:#27d3ea;--ok:#3fe08c;--cell:#2a2650;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:16px}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+h1{margin:0;font:italic 900 30px/1 Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;letter-spacing:.02em;transform:skew(-6deg)}
+h2{margin:0 0 10px;font-size:15px;font-weight:700}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill,button{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:6px 12px;border-radius:99px}
+button{cursor:pointer}button:hover{border-color:var(--dir)}button:focus-visible{outline:2px solid var(--res);outline-offset:2px}
+.pill.on{border-color:var(--ok);color:var(--ok)}
+main{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.wide{grid-column:1/-1}
+.ctl{display:flex;flex-wrap:wrap;gap:22px;align-items:center;justify-content:center}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);gap:5px}
+.dpad i{height:52px;border-radius:10px;background:var(--cell);display:grid;place-items:center;font:normal 22px/1 system-ui;color:var(--mute);transition:background .05s}
+.dpad i.on{background:var(--dir);color:#fff}
+.btns{display:grid;grid-template-columns:repeat(3,56px);gap:8px}
+.btns b{height:56px;border-radius:50%;background:var(--cell);display:grid;place-items:center;font-size:14px;color:var(--mute)}
+.btns b.on{background:var(--btn);color:#1a1300}
+.note{text-align:center;color:var(--mute);font-size:13px;margin:12px 0 0}
+.note strong{color:var(--ink);font:700 20px/1 ui-monospace,Menlo,Consolas,monospace;margin-left:4px}
+.result{margin:14px 0 6px;min-height:92px;text-align:center;display:flex;flex-direction:column;justify-content:center}
+.result .big{font:italic 900 clamp(30px,6vw,46px)/1.05 Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;color:var(--res);letter-spacing:.01em}
+.result .sub{color:var(--mute);margin-top:4px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+.result.pop .big{animation:pop .28s ease-out}
+@keyframes pop{0%{transform:scale(1.18) skew(-6deg);opacity:.3}100%{transform:scale(1) skew(0);opacity:1}}
+.meters{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px;color:var(--mute)}
+.meters div div{height:8px;border-radius:9px;background:var(--cell);margin-top:4px;overflow:hidden}
+.meters span{display:block;height:100%;width:0;background:var(--btn)}
+.meters .rdy span{background:var(--ok)}
+ol{list-style:none;margin:0;padding:0;max-height:430px;overflow:auto}
+li{display:grid;grid-template-columns:38px 28px 22px 1fr;gap:6px;align-items:center;padding:4px 6px;border-bottom:1px solid var(--line);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
+li:first-child{background:var(--cell);border-radius:6px}
+li .fr{color:var(--mute);text-align:right}li .ar{color:var(--dir);font-size:17px;text-align:center}li .nm{color:var(--mute)}li .bb{color:var(--btn);font-weight:700}
+.log{margin:10px 0 0;font-size:13px;color:var(--mute);display:flex;flex-wrap:wrap;gap:6px}
+.log span{background:var(--cell);border-radius:99px;padding:2px 10px;color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+.chip{border:1px solid var(--line);border-radius:10px;padding:8px 10px;transition:border-color .1s,background .1s}
+.chip b{display:block;font-size:14px}.chip code{color:var(--mute);font-size:12px}
+.chip em{float:right;font-style:normal;font-size:12px;color:var(--ok);font-weight:700}
+.chip.hit{border-color:var(--ok)}.chip.flash{background:var(--cell)}
+.keys{font-size:13px;color:var(--mute)}.keys p{margin:4px 0}.keys kbd{background:var(--cell);color:var(--ink);padding:1px 6px;border-radius:5px;font-size:12px}
+@media (max-width:760px){main{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.result.pop .big{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>SF6 INPUT TRAINER</h1>
+  <div class="bar">
+    <span id="pad" class="pill">No controller — press a button on it</span>
+    <button id="face" type="button">Facing right</button>
+    <button id="clr" type="button">Clear</button>
+  </div>
+</header>
+<main>
+  <section class="card">
+    <div class="ctl"><div class="dpad" id="dpad"></div><div class="btns" id="btns"></div></div>
+    <p class="note">Input (facing-relative numpad)<strong id="notation">5</strong></p>
+    <div class="result" id="result"><div class="big">Do a motion</div><div class="sub">Roll a fireball, throw a DP, spin a 360…</div></div>
+    <div class="meters">
+      <div id="mb">Charge back<div><span></span></div></div>
+      <div id="md">Charge down<div><span></span></div></div>
+    </div>
+    <div class="log" id="log"></div>
+  </section>
+  <section class="card"><h2>Input history</h2><ol id="hist"></ol></section>
+  <section class="card wide"><h2>Commands</h2><div class="grid" id="cmds"></div></section>
+  <section class="card wide keys">
+    <p><b>Keyboard:</b> move with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or the arrow keys; <kbd>Space</kbd> also jumps. Opposite directions cancel to neutral (left+right, up/Space+down). Punches <kbd>U</kbd><kbd>I</kbd><kbd>O</kbd> (or <kbd>Z</kbd><kbd>X</kbd><kbd>C</kbd>) = LP MP HP. Kicks <kbd>J</kbd><kbd>K</kbd><kbd>L</kbd> (or <kbd>V</kbd><kbd>B</kbd><kbd>N</kbd>) = LK MK HK.</p>
+    <p><b>Controller:</b> d-pad or left stick. <kbd>X</kbd> <kbd>Y</kbd> <kbd>RB</kbd> = LP MP HP, <kbd>A</kbd> <kbd>B</kbd> <kbd>RT</kbd> = LK MK HK (standard layout, same as SF6’s default). Press any button once so the browser notices it.</p>
+    <p><b>Combos:</b> LP+LK = Throw, MP+MK = Drive Parry, HP+HK = Drive Impact. Shortcuts work: 323 for DP, 121 for reverse DP, and 360/720 take the four directions in any order. Use the facing button to practice from the left or right side.</p>
+  </section>
+</main>
+</div>
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const RING=[6,3,2,1,4,7,8,9], ARROW={7:'↖',8:'↑',9:'↗',4:'←',5:'•',6:'→',1:'↙',2:'↓',3:'↘'};
+const BN=['LP','MP','HP','LK','MK','HK'];
+const KDIR={Space:'u',KeyA:'l',ArrowLeft:'l',KeyD:'r',ArrowRight:'r',KeyW:'u',ArrowUp:'u',KeyS:'d',ArrowDown:'d'};
+const KBTN={KeyU:'LP',KeyI:'MP',KeyO:'HP',KeyJ:'LK',KeyK:'MK',KeyL:'HK',KeyZ:'LP',KeyX:'MP',KeyC:'HP',KeyV:'LK',KeyB:'MK',KeyN:'HK'};
+const PBTN={2:'LP',3:'MP',5:'HP',0:'LK',1:'MK',7:'HK'};
+const MOVES=[ // ordered by priority
+ {id:'dqcf',name:'Double Fireball',not:'236236',seq:[2,3,6,2,3,6],win:1200,any:true,note:'Super Art'},
+ {id:'dqcb',name:'Double QCB',not:'214214',seq:[2,1,4,2,1,4],win:1200,any:true,note:'Super Art'},
+ {id:'hcf',name:'Half Circle Forward',not:'41236',seq:[4,1,2,3,6],win:800,note:'HCF'},
+ {id:'hcb',name:'Half Circle Back',not:'63214',seq:[6,3,2,1,4],win:800,note:'HCB'},
+ {id:'dp',name:'Dragon Punch (DP)',not:'623',seq:[6,2,3],alts:[[3,2,3]],win:500,note:'Shoryuken'},
+ {id:'rdp',name:'Reverse DP',not:'421',seq:[4,2,1],alts:[[1,2,1]],win:500,note:'RDP'},
+ {id:'qcf',name:'Fireball',not:'236',seq:[2,3,6],win:500,note:'QCF'},
+ {id:'qcb',name:'Quarter Circle Back',not:'214',seq:[2,1,4],win:500,note:'QCB / Tatsu'}];
+const EXTRA=[
+ {id:'720',name:'720',not:'720°'},{id:'360',name:'360',not:'360°'},
+ {id:'chb',name:'Charge Back → Forward',not:'[4]6'},{id:'chd',name:'Charge Down → Up',not:'[2]8'},
+ {id:'fd',name:'Forward Dash',not:'66'},{id:'bd',name:'Back Dash',not:'44'}];
+const ALL=[...MOVES,...EXTRA].sort((a,b)=>a.not.length-b.not.length);
+const CHARGE=750;
+let facing=1, ev=[], hist=[], log=[], counts={}, last=null, lastBtn=null, grp=[], grpTimer=0;
+let bs=null, ds=null, chB=null, chD=null, prev={n:5,btn:''}, spinHit=null, ce=[], fl3=0, fl7=0, pend=null;
+const keys=new Set();
+
+// build UI
+$('#dpad').innerHTML=[7,8,9,4,5,6,1,2,3].map(n=>`<i data-n="${n}">${ARROW[n]}</i>`).join('');
+$('#btns').innerHTML=BN.map(b=>`<b data-b="${b}">${b}</b>`).join('');
+$('#cmds').innerHTML=ALL.map(m=>`<div class="chip" id="c-${m.id}"><em></em><b>${m.name}</b><code>${m.not}</code></div>`).join('');
+const cells=[...document.querySelectorAll('#dpad i')], bels=[...document.querySelectorAll('#btns b')];
+
+// ring helpers
+const rd=(a,b)=>{let d=(((RING.indexOf(b)-RING.indexOf(a))%8)+8)%8;return d>4?d-8:d};
+const isCard=n=>[2,4,6,8].includes(n);
+const rel=(x,y)=>5+x*facing+3*y;
+
+function strip(){return ev.filter(e=>e.n!==5)}
+// Matches a motion using only inputs not already spent on an earlier move (unless any=true, for supers).
+function matchSeq(seq,pat,win,now,any){
+  if(!seq.length||seq[seq.length-1].n!==pat[pat.length-1])return null;
+  let k=pat.length-1;const got=[];
+  for(let i=seq.length-1;i>=0&&k>=0;i--){const e=seq[i];if(e.n===pat[k]&&(any||!e.used)){got.push(e);k--}}
+  return k<0&&now-got[got.length-1].t<=win?got:null;
+}
+// 360/720: SF6 only needs all four directions (any order, diagonals count for both parts).
+const COMP={7:'ub',8:'u',9:'uf',4:'b',6:'f',1:'db',2:'d',3:'df'};
+function spinStep(n,t){
+  for(const c of COMP[n])ce.push({c,t});
+  ce=ce.filter(e=>t-e.t<2000);
+  let set=new Set(),cnt=0;
+  for(const e of ce){
+    if(e.t<=fl7||t-e.t>1800)continue;
+    set.add(e.c);if(set.size===4){cnt++;set=new Set()}
+  }
+  if(cnt>=2){fl7=fl3=t;spinHit='720';return}
+  const w=new Set(ce.filter(e=>e.t>fl3&&t-e.t<=900).map(e=>e.c));
+  if(w.size===4){fl3=t;spinHit='360'}
+}
+// Regular motions wait a beat so a longer motion (360) can take over, e.g. QCF → back → up.
+function dropPend(){if(pend){clearTimeout(pend.timer);pend=null}}
+function flushPend(){if(pend){clearTimeout(pend.timer);const p=pend;pend=null;emit(p.id,p.t)}}
+function queue(id,t){flushPend();pend={id,t,timer:setTimeout(flushPend,260)}}
+
+function pushDir(n,t){
+  spinHit=null;
+  const l=ev[ev.length-1];
+  if(l&&l.n!==5&&n!==5&&isCard(l.n)&&isCard(n)&&Math.abs(rd(l.n,n))===2){
+    const m=RING[(RING.indexOf(l.n)+rd(l.n,n)/2+8)%8]; ev.push({n:m,t,syn:1});spinStep(m,t);
+  }
+  ev.push({n,t}); ev=ev.filter(e=>t-e.t<3000).slice(-40);
+  if(n!==5)spinStep(n,t);
+  // charge tracking
+  const back=[4,1,7].includes(n), down=[2,1,3].includes(n), fwd=[6,3,9].includes(n), up=[8,7,9].includes(n);
+  if(back){if(bs==null)bs=t}else if(bs!=null){if(t-bs>=CHARGE)chB=t;bs=null}
+  if(down){if(ds==null)ds=t}else if(ds!=null){if(t-ds>=CHARGE)chD=t;ds=null}
+  if(fwd&&chB!=null&&t-chB<=250){chB=null;return emit('chb',t)}
+  if(up&&chD!=null&&t-chD<=250){chD=null;return emit('chd',t)}
+  // dashes
+  const raw=ev.filter(e=>!e.syn),r=raw.length;
+  if(r>=3&&raw[r-1].n===n&&raw[r-2].n===5&&raw[r-3].n===n&&t-raw[r-3].t<=350){
+    if(n===6)return emit('fd',t); if(n===4)return emit('bd',t);
+  }
+  if(n===5)return;
+  // spins
+  if(spinHit){dropPend();return emit(spinHit,t)}
+  const s=strip();
+  for(const m of MOVES){
+    for(const q of [m.seq,...(m.alts||[])]){
+      const g=matchSeq(s,q,m.win,t,m.any);
+      if(g){g.forEach(e=>e.used=true);return queue(m.id,t)}
+    }
+  }
+}
+
+function emit(id,t){
+  const def=ALL.find(m=>m.id===id), e={def,t,btn:null};
+  counts[id]=(counts[id]||0)+1; last=e;
+  if(lastBtn&&t-lastBtn.t<150)e.btn=lastBtn.label;
+  log.unshift(e); log=log.slice(0,6); show(e); flashChip(id);
+}
+function show(e){
+  const r=$('#result');
+  r.innerHTML=`<div class="big">${e.def.name}${e.btn?' + '+e.btn:''}</div><div class="sub">${e.def.not}${e.btn?' + '+e.btn:''}${e.def.note?' · '+e.def.note:''}</div>`;
+  r.classList.remove('pop');void r.offsetWidth;r.classList.add('pop');
+  $('#log').innerHTML=log.map(x=>`<span>${x.def.name}${x.btn?' + '+x.btn:''}</span>`).join('');
+}
+function flashChip(id){
+  const c=$('#c-'+id);c.classList.add('hit','flash');c.querySelector('em').textContent='×'+counts[id];
+  setTimeout(()=>c.classList.remove('flash'),180);
+}
+
+// buttons
+const SYS={'LP+LK':'Throw','MP+MK':'Drive Parry','HP+HK':'Drive Impact'};
+function onBtn(b,t){grp.push(b);if(!grpTimer)grpTimer=setTimeout(finish,50)}
+function finish(){
+  grpTimer=0;const names=BN.filter(b=>grp.includes(b)),key=names.join('+'),t=performance.now();grp=[];
+  const sys=SYS[key];
+  if(sys){const d={name:sys,not:key,note:''};const e={def:d,t,btn:null};log.unshift(e);log=log.slice(0,6);show(e);return}
+  lastBtn={label:key,t};
+  if(!pend&&last&&!last.btn&&t-last.t<350){last.btn=key;show(last)}
+}
+
+// history
+function addRow(n,btn,t){
+  if(hist.length)hist[0].t1=t;
+  hist.unshift({n,btn,t0:t,t1:null}); hist=hist.slice(0,20); renderHist(t);
+}
+function renderHist(now){
+  $('#hist').innerHTML=hist.map(h=>`<li><span class="fr">${Math.min(99,Math.round(((h.t1||now)-h.t0)/16.667))}f</span><span class="ar">${ARROW[h.n]}</span><span class="nm">${h.n}</span><span class="bb">${h.btn.split('+').join(' ')}</span></li>`).join('');
+}
+
+// input polling
+function poll(){
+  let x=0,y=0;const b=new Set();
+  const k={l:0,r:0,u:0,d:0};
+  keys.forEach(c=>{if(KDIR[c])k[KDIR[c]]=1;if(KBTN[c])b.add(KBTN[c])});
+  const pads=navigator.getGamepads?[...navigator.getGamepads()].filter(Boolean):[];
+  for(const p of pads){
+    const B=i=>p.buttons[i]&&p.buttons[i].pressed;
+    if(B(15)||p.axes[0]>.5)k.r=1;
+    if(B(14)||p.axes[0]<-.5)k.l=1;
+    if(B(12)||p.axes[1]<-.5)k.u=1;
+    if(B(13)||p.axes[1]>.5)k.d=1;
+    for(const i in PBTN)if(B(i))b.add(PBTN[i]);
+  }
+  // SOCD: opposite directions cancel to neutral, across keyboard and controller
+  if(!(k.l&&k.r))x=k.r-k.l;
+  if(!(k.u&&k.d))y=k.u-k.d;
+  return {x,y,b};
+}
+function frame(t){
+  const s=poll(), n=rel(s.x,s.y), ab=5+s.x+3*s.y, btn=BN.filter(c=>s.b.has(c)).join('+');
+  let changed=false;
+  if(n!==prev.n){pushDir(n,t);changed=true}
+  for(const c of s.b)if(!prev.btn.split('+').includes(c)){onBtn(c,t);changed=true}
+  if(btn!==prev.btn)changed=true;
+  if(changed)addRow(n,btn,t);else if(hist.length&&frame.k++%4===0)renderHist(t);
+  prev={n,btn};
+  cells.forEach(c=>c.classList.toggle('on',+c.dataset.n===ab&&ab!==5));
+  bels.forEach(c=>c.classList.toggle('on',s.b.has(c.dataset.b)));
+  $('#notation').textContent=n;
+  meter('#mb',bs,chB,t);meter('#md',ds,chD,t);
+  requestAnimationFrame(frame);
+}
+frame.k=0;
+function meter(sel,start,ready,t){
+  const el=$(sel),f=start!=null?Math.min(1,(t-start)/CHARGE):(ready!=null&&t-ready<250?1:0);
+  el.querySelector('span').style.width=(f*100)+'%';el.classList.toggle('rdy',f>=1);
+}
+
+// events
+addEventListener('keydown',e=>{
+  if(KDIR[e.code]||KBTN[e.code]){e.preventDefault();if(!e.repeat)keys.add(e.code)}
+});
+addEventListener('keyup',e=>{keys.delete(e.code)});
+addEventListener('blur',()=>keys.clear());
+addEventListener('gamepadconnected',e=>{const p=$('#pad');p.textContent='Controller: '+e.gamepad.id.slice(0,34);p.classList.add('on')});
+addEventListener('gamepaddisconnected',()=>{const p=$('#pad');p.textContent='No controller — press a button on it';p.classList.remove('on')});
+$('#face').onclick=()=>{facing*=-1;ev=[];ce=[];fl3=fl7=0;dropPend();bs=ds=chB=chD=null;$('#face').textContent=facing>0?'Facing right':'Facing left'};
+$('#clr').onclick=()=>{ev=[];ce=[];fl3=fl7=0;dropPend();hist=[];log=[];counts={};last=lastBtn=null;renderHist(0);$('#log').innerHTML='';
+  document.querySelectorAll('.chip').forEach(c=>{c.classList.remove('hit');c.querySelector('em').textContent=''});
+  $('#result').innerHTML='<div class="big">Do a motion</div><div class="sub">Roll a fireball, throw a DP, spin a 360…</div>'};
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
